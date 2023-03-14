@@ -12,10 +12,18 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
 
 
+def has_unique_rows(array):
+    res = True
+    for row in array:
+        res = res and len(np.unique(row)) == len(row)
+
+    return res
+
+
 def main():
     test_message = "Текст message"
 
-    a = text_to_bits('test_message')
+    a = text_to_bits(test_message)
     print('1', a, "  len = ", len(a))
     print('2', text_from_bits(a))
 
