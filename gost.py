@@ -16,7 +16,8 @@ class GOSTCrypt:
         return self.__key
 
     @key.setter
-    def key(self, key):
+    def key(self, key: str):
+
         self.__key = key
 
     @property
