@@ -15,7 +15,7 @@ class GOSTCrypt:
 
     def simple_replace_encr(self, text):
         text = op.text_to_bits(text)
-        if len(text) % 64 != 0: raise ValueError('Размер текста должен быть кратен 64 бит')
+        if len(text) % 64 != 0: raise ValueError(f'Размер текста должен быть кратен 64 бит ({len(text)})')
         text = [np.uint64(int(text[part_num * 64: part_num * 64 + 64], 2)) for part_num in range(len(text)//64)]
 
         result = ''
@@ -25,7 +25,7 @@ class GOSTCrypt:
 
     def simple_replace_decr(self, text):
         text = op.btext_to_bits(text)
-        if len(text) % 64 != 0: raise ValueError('Размер шифр-текста должен быть кратен 64 бит')
+        if len(text) % 64 != 0: raise ValueError(f'Размер шифр-текста должен быть кратен 64 бит ({len(text)})')
         text = [np.uint64(int(text[part_num * 64: part_num * 64 + 64], 2)) for part_num in range(len(text)//64)]
 
         result = ''
@@ -100,14 +100,18 @@ class GOSTCrypt:
 
 def main():
     gost = GOSTCrypt()
+    path = "D://cipher_text.txt"
     key = 'qwer17lkybz5f9up3m4h08nkudjhhtgf'
     key_table = [np.random.permutation(row) for row in itertools.repeat(range(16), 8)]
     gost.key = key
     gost.key_table = key_table
 
-    text = 'Test message cry'
+    # text = 'Test message cry'
+    text = 'Тестовое сообщение!кр'
 
     cipher_text = gost.simple_replace_encr(text)
+    op.save_text(cipher_text, path)
+    cipher_text = op.load_text(path)
     print(cipher_text)
     print(gost.simple_replace_decr(cipher_text))
 
