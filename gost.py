@@ -90,8 +90,8 @@ class GOSTCrypt:
         if key_table:
             key_table = np.array(key_table, dtype=np.uint8)
             if key_table.shape != (8, 16) or\
-                    len(key_table[key_table > 15]) != 0 or\
-                    not op.has_unique_rows(key_table):
+                    len(key_table[key_table > 15]) != 0:
+                    #not op.has_unique_rows(key_table):
                 raise ValueError("Таблица замен должна быть массивом чисел от 0 до 15 размера 8 на 16")
             self.__key_table = key_table
         else:
@@ -99,21 +99,33 @@ class GOSTCrypt:
 
 
 def main():
+    # Создание экземпляра класса GOSTCrypt
     gost = GOSTCrypt()
-    path = "D://cipher_text.txt"
+
+    # Определение ключевой информации
     key = 'qwer17lkybz5f9up3m4h08nkudjhhtgf'
     key_table = [np.random.permutation(row) for row in itertools.repeat(range(16), 8)]
+
+    # Установка ключевой информации
     gost.key = key
     gost.key_table = key_table
 
     # text = 'Test message cry'
+    # Задание текста для шифрования
     text = 'Тестовое сообщение!кр'
+    print('Исходный текст : ', text)
 
-    cipher_text = gost.simple_replace_encr(text)
-    op.save_text(cipher_text, path)
-    cipher_text = op.load_text(path)
-    print(cipher_text)
-    print(gost.simple_replace_decr(cipher_text))
+    # Шифрование текста и вывод в консоль
+    encrypted_text = gost.simple_replace_encr(text)
+    print('Зашифрованный текст : ', encrypted_text)
+
+    path = "D://cipher_text.txt"
+    op.save_text(encrypted_text, path)
+    encrypted_text = op.load_text(path)
+
+    # Расшифрование текста и вывод в консоль
+    decrypted_text = gost.simple_replace_decr(encrypted_text)
+    print('Расшифрованный текст : ', decrypted_text)
 
 
 if __name__ == "__main__":
