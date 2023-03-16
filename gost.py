@@ -35,7 +35,7 @@ class GOSTCrypt:
         return op.text_from_bits(result)
 
     def __encrypt_block(self, block):
-        left, right = np.uint32(np.right_shift(block, np.uint8(32))), np.uint32(np.bitwise_and(block, np.uint32(0xFFFFFFFF)))
+        left, right = np.uint32(block >> np.uint8(32)), np.uint32(block & np.uint32(0xFFFFFFFF))
 
         for i in range(24):
             left, right = self.__main_operation(left, right, self.key[i % 8])
@@ -43,10 +43,10 @@ class GOSTCrypt:
         for i in range(7, -1, -1):
             left, right = self.__main_operation(left, right, self.key[i])
 
-        return np.left_shift(right, np.uint64(32)) | left
+        return (right << np.uint64(32)) | left
 
     def __decrypt_block(self, block):
-        left, right = np.uint32(np.right_shift(block, np.uint8(32))), np.uint32(np.bitwise_and(block, np.uint32(0xFFFFFFFF)))
+        left, right = np.uint32(block >> np.uint8(32)), np.uint32(block & np.uint32(0xFFFFFFFF))
 
         for i in range(8):
             left, right = self.__main_operation(left, right, self.key[i])
@@ -54,16 +54,15 @@ class GOSTCrypt:
         for i in range(23, -1, -1):
             left, right = self.__main_operation(left, right, self.key[i % 8])
 
-        return np.left_shift(right, np.uint64(32)) | left
+        return (right << np.uint64(32)) | left
 
     def __main_operation(self, left, right, key):
         temp = np.bitwise_xor(right, key)
         res = np.uint32(0)
 
         for i in range(8):
-            l = self.key_table[i][(temp >> i*4) & 0b1111]
-            res |= np.left_shift(l, np.uint32(i*4))
-        res = np.uint32(((res >> (32-11)) | np.uint32(res << np.uint32(11))) & np.uint32(0xFFFFFFFF))
+            res |= self.key_table[i][(temp >> i*4) & 0b1111] << i*4
+        res = np.uint32(((res >> (32-11)) | res << 11) & 0xFFFFFFFF)
         left ^= res
 
         return right, left
